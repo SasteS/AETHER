@@ -1,0 +1,15 @@
+services:
+  aether.gateway:
+    image: ${DOCKER_REGISTRY-}aethergateway
+    build:
+      context: .
+      dockerfile: Aether.Gateway/Dockerfile
+    ports:
+      - "5005:8080"
+    networks:
+      - aether-network
+
+networks:
+  aether-network:
+    external: true
+    name: aether-network

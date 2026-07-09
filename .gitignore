@@ -451,6 +451,7 @@ src/Aether.Orchestrator/aether-orchestrator
 # Go workspace file
 go.work
 go.work.sum
+.idea/
 
 # ==========================================
 # React (Aether.Web)

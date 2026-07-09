@@ -43,7 +43,8 @@ func main() {
 	// 4. Create Container with Enterprise Limits
 	resp, err := cli.ContainerCreate(ctx,
 		&container.Config{
-			Image: imageName,
+			Image:    imageName,
+			Hostname: "sandbox1",
 		},
 		&container.HostConfig{
 			Resources: container.Resources{
@@ -56,7 +57,7 @@ func main() {
 			EndpointsConfig: map[string]*network.EndpointSettings{
 				"aether-network": {},
 			},
-		}, nil, "")
+		}, nil, "sandbox1")
 
 	if err != nil {
 		log.Fatalf("❌ Creation Failed: %s", err)
