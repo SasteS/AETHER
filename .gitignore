@@ -427,3 +427,50 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# ==========================================
+# Go (Aether.Orchestrator)
+# ==========================================
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with 'go test -c'
+*.test
+
+# Output of the go build command
+src/Aether.Orchestrator/Aether.Orchestrator
+src/Aether.Orchestrator/aether-orchestrator
+
+# Dependency directories (only ignored if you use 'go mod vendor')
+# vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# ==========================================
+# React (Aether.Web)
+# ==========================================
+node_modules/
+src/Aether.Web/dist/
+src/Aether.Web/build/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# Infrastructure & DevOps (Future)
+# ==========================================
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.pem
+*.key
