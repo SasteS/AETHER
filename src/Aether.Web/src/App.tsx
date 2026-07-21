@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Rocket, Server, Loader2, Plus, ExternalLink, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Rocket, Server, Loader2, Plus, ExternalLink, Trash2, RefreshCw } from 'lucide-react';
 import './App.css';
 
 interface Sandbox {
@@ -10,6 +10,27 @@ interface Sandbox {
 function App() {
   const [sandboxes, setSandboxes] = useState<Sandbox[]>([]);
   const [isProvisioning, setIsProvisioning] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(true);
+
+  // --- NEW: SYNC ON LOAD ---
+  useEffect(() => {
+    fetchSandboxes();
+  }, []);
+
+  const fetchSandboxes = async () => {
+    setIsSyncing(true);
+    try {
+      const response = await fetch('http://localhost:8081/sandboxes');
+      if (response.ok) {
+        const data = await response.json();
+        setSandboxes(data);
+      }
+    } catch (err) {
+      console.error("Discovery service offline");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const handleLaunch = async () => {
     setIsProvisioning(true);
@@ -24,7 +45,6 @@ function App() {
     }
   };
 
-  // NEW: Logical deletion from both Backend and UI
   const handleTerminate = async (id: string) => {
     try {
       const response = await fetch(`http://localhost:8081/terminate?id=${id}`, { method: 'DELETE' });
@@ -43,15 +63,21 @@ function App() {
           <h1 style={{ fontSize: '2.5rem', margin: 0, fontWeight: 800 }}>AETHER<span style={{ color: '#3b82f6' }}>.</span></h1>
           <p style={{ color: '#64748b' }}>Environments-as-a-Service</p>
         </div>
-        <button onClick={handleLaunch} disabled={isProvisioning} style={{
-            display: 'flex', alignItems: 'center', gap: '8px',
-            backgroundColor: isProvisioning ? '#1e293b' : '#3b82f6',
-            color: 'white', padding: '12px 24px', borderRadius: '10px',
-            border: 'none', fontWeight: 600, cursor: isProvisioning ? 'not-allowed' : 'pointer'
-        }}>
-          {isProvisioning ? <Loader2 className="spinner" size={20} /> : <Plus size={20} />}
-          {isProvisioning ? 'Provisioning...' : 'Launch Sandbox'}
-        </button>
+        
+        <div style={{ display: 'flex', gap: '12px' }}>
+            <button onClick={fetchSandboxes} style={{ padding: '12px', borderRadius: '10px', border: '1px solid #334155', backgroundColor: 'transparent', cursor: 'pointer', color: '#94a3b8' }}>
+                <RefreshCw size={20} className={isSyncing ? 'spinner' : ''} />
+            </button>
+            <button onClick={handleLaunch} disabled={isProvisioning} style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                backgroundColor: isProvisioning ? '#1e293b' : '#3b82f6',
+                color: 'white', padding: '12px 24px', borderRadius: '10px',
+                border: 'none', fontWeight: 600, cursor: isProvisioning ? 'not-allowed' : 'pointer'
+            }}>
+            {isProvisioning ? <Loader2 className="spinner" size={20} /> : <Plus size={20} />}
+            {isProvisioning ? 'Provisioning...' : 'Launch Sandbox'}
+            </button>
+        </div>
       </header>
 
       <main>
@@ -60,7 +86,6 @@ function App() {
             <div key={sb.id} style={{ backgroundColor: '#1e293b', padding: '1.5rem', borderRadius: '16px', border: '1px solid #334155' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
                 <div style={{ color: '#10b981', fontSize: '0.75rem', fontWeight: 700 }}><Server size={14} /> ONLINE</div>
-                {/* KILL BUTTON */}
                 <button onClick={() => handleTerminate(sb.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}>
                    <Trash2 size={16} />
                 </button>
@@ -74,7 +99,7 @@ function App() {
             </div>
           ))}
           
-          {sandboxes.length === 0 && !isProvisioning && (
+          {sandboxes.length === 0 && !isSyncing && !isProvisioning && (
             <div style={{ gridColumn: '1/-1', padding: '5rem', textAlign: 'center', border: '2px dashed #1e293b', borderRadius: '24px', color: '#475569' }}>
                <Rocket size={48} style={{ marginBottom: '1.5rem', opacity: 0.3, display: 'inline-block' }} />
                <p>No active sandboxes. Launch one to begin.</p>
